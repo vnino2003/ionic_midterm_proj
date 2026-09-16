@@ -1,46 +1,73 @@
 :root {
-  --ion-color-primary: #7c5cbf;
-  --ion-color-primary-rgb: 124,92,191;
+  color-scheme: light;
+  --canvas: #f8f9f5;
+  --sidebar: #f2f3ec;
+  --surface: #ffffff;
+  --ink: #2c3428;
+  --muted: #696f62;
+  --line: #e3e6dc;
+  --line-soft: #eff0ea;
+  --accent: #52663f;
+  --accent-soft: #e5ebdc;
+  --ion-color-primary: #52663f;
+  --ion-color-primary-rgb: 82, 102, 63;
   --ion-color-primary-contrast: #ffffff;
-  --ion-color-primary-contrast-rgb: 255,255,255;
-  --ion-color-primary-shade: #6d51a8;
-  --ion-color-primary-tint: #896cc5;
-
-  --ion-color-secondary: #f4a8c8;
-  --ion-color-secondary-rgb: 244,168,200;
-  --ion-color-secondary-contrast: #000000;
-  --ion-color-secondary-contrast-rgb: 0,0,0;
-  --ion-color-secondary-shade: #d794b0;
-  --ion-color-secondary-tint: #f5b1ce;
-
-  --ion-color-tertiary: #a8d8ea;
-  --ion-color-tertiary-rgb: 168,216,234;
-  --ion-color-tertiary-contrast: #000000;
-  --ion-color-tertiary-contrast-rgb: 0,0,0;
-  --ion-color-tertiary-shade: #94bee0;
-  --ion-color-tertiary-tint: #b1dcec;
-
-  --ion-color-success: #7ecb96;
-  --ion-color-success-rgb: 126,203,150;
-  --ion-color-success-contrast: #000000;
-  --ion-color-success-contrast-rgb: 0,0,0;
-  --ion-color-success-shade: #6fb384;
-  --ion-color-success-tint: #8bd0a1;
-
-  --ion-color-warning: #ffd97d;
-  --ion-color-warning-rgb: 255,217,125;
-  --ion-color-warning-contrast: #000000;
-  --ion-color-warning-contrast-rgb: 0,0,0;
-  --ion-color-warning-shade: #e0bf6e;
-  --ion-color-warning-tint: #ffdd8a;
-
-  --ion-color-danger: #f28b82;
-  --ion-color-danger-rgb: 242,139,130;
-  --ion-color-danger-contrast: #000000;
-  --ion-color-danger-contrast-rgb: 0,0,0;
-  --ion-color-danger-shade: #d57a72;
-  --ion-color-danger-tint: #f3978f;
-
-  --ion-background-color: #faf7ff;
-  --ion-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #485a37;
+  --ion-color-primary-tint: #637551;
+  --ion-color-success: #52663f;
+  --ion-color-success-rgb: 82, 102, 63;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #485a37;
+  --ion-color-success-tint: #637551;
+  --ion-color-danger: #af4540;
+  --ion-color-danger-rgb: 175, 69, 64;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #9a3d38;
+  --ion-color-danger-tint: #b75853;
+  --ion-background-color: #f8f9f5;
+  --ion-text-color: #2c3428;
+  --ion-toolbar-background: #ffffff;
+  --ion-item-background: #ffffff;
+  --ion-font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
 }
+* { box-sizing: border-box; }
+body { -webkit-font-smoothing: antialiased; }
+button, input, select, textarea { font: inherit; }
+button { border: 0; cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .5; }
+button, a, select { -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+::selection { background: #dce7cd; color: var(--ink); }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.primary-button, .secondary-button { min-height: 43px; display: inline-flex; align-items: center; justify-content: center; gap: 9px; padding: 0 19px; border-radius: 8px; font-size: 12px; font-weight: 500; transition: background 160ms ease, transform 160ms ease; }
+.primary-button { background: var(--accent); color: #fff; border: 1px solid var(--accent); box-shadow: 0 2px 3px #2b38200a; }
+.secondary-button { background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
+.primary-button ion-icon, .secondary-button ion-icon { font-size: 19px; }
+.primary-button:active:not(:disabled), .secondary-button:active:not(:disabled) { transform: translateY(1px); }
+.icon-button { display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; width: 38px; height: 38px; padding: 0; border-radius: 7px; background: transparent; color: var(--muted); transition: background 160ms ease, color 160ms ease; }
+.text-button { display: inline-flex; align-items: center; gap: 5px; padding: 6px 0; background: transparent; color: var(--accent); font-size: 11px; }
+.category-dot { display: inline-block; flex-shrink: 0; width: 7px; height: 7px; border-radius: 50%; background: var(--category-color, #858d82); }
+.category-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 8px; border-radius: 5px; background: var(--category-bg, #edf0ea); color: var(--category-text, #616d5b); font-size: 10px; font-weight: 500; line-height: 1.2; }
+.cat-personal { --category-color: #b58998; --category-bg: #f6edf0; --category-text: #875a69; }
+.cat-school { --category-color: #9591b8; --category-bg: #f0eef8; --category-text: #68618c; }
+.cat-work { --category-color: #86a2b9; --category-bg: #edf3f8; --category-text: #4c6c85; }
+.cat-ideas { --category-color: #bfaa68; --category-bg: #f8f3e5; --category-text: #7e672d; }
+.cat-other { --category-color: #8da58a; --category-bg: #edf3ea; --category-text: #536d4f; }
+ion-content::part(scroll) { scrollbar-width: thin; scrollbar-color: #c9cebf transparent; }
+ion-modal.note-modal { --width: 620px; --height: min(780px, 90vh); --border-radius: 18px; --box-shadow: 0 24px 90px #202b2329; --backdrop-opacity: .25; }
+ion-toast { --border-radius: 10px; --box-shadow: 0 5px 24px #2c342816; --max-width: 440px; --width: calc(100% - 32px); font-size: 13px; }
+ion-alert { --backdrop-opacity: .25; }
+ion-alert .alert-wrapper { border-radius: 16px !important; }
+ion-alert .alert-button-role-destructive { color: var(--ion-color-danger) !important; }
+@media (hover: hover) {
+  .primary-button:hover:not(:disabled) { background: #435633; }
+  .secondary-button:hover:not(:disabled) { background: #eff2e9; }
+  .icon-button:hover { background: var(--accent-soft); color: var(--accent); }
+  .icon-button.delete-button:hover { background: #fbefed; color: var(--ion-color-danger); }
+  .text-button:hover { text-decoration: underline; }
+}
+@media (max-width: 600px) { ion-modal.note-modal { --width: 100%; --height: 100%; --border-radius: 0; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }

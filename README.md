@@ -4,6 +4,8 @@ A mobile-friendly Notes Organizer app built with **Ionic Framework + Vue 3 + Fir
 
 **Topic #20** from the Midterm Project list.
 
+For the interface improvements, preserved behavior, and verification steps, see [UI update notes](docs/UI-UPDATE.md).
+
 ---
 
 ## Table of Contents
