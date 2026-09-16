@@ -26,10 +26,12 @@ A mobile-friendly Notes Organizer app built with **Ionic Framework + Vue 3 + Fir
 | **Ionic Framework** | 8.x | Mobile UI components (cards, modals, FABs, toasts, chips) |
 | **Vue 3** | 3.5.x | JavaScript framework (Composition API with `<script setup>`) |
 | **Firebase Realtime Database** | 11.x SDK | Cloud NoSQL database — stores notes in real-time |
+| **Capacitor** | 6.x | Native bridge — wraps the web app into an Android APK |
 | **Vite** | 6.x | Fast build tool |
 | **TypeScript** | 5.7.x | Type-safe JavaScript |
 | **Ionicons** | 7.x | Icon library for UI icons |
 | **Vue Router** | 4.x | Client-side routing |
+| **GitHub Actions** | — | CI/CD — builds the Android APK in the cloud (manual trigger) |
 
 ---
 
@@ -203,6 +205,19 @@ User taps [+] FAB button
 
 ```
 ionic-midterm_project/
+├── .github/
+│   └── workflows/
+│       └── build-apk.yml       # GitHub Actions — builds APK (manual trigger)
+├── android/                    # Capacitor Android project (auto-generated)
+│   ├── app/
+│   │   ├── src/main/
+│   │   │   ├── java/.../MainActivity.java
+│   │   │   ├── res/            # Android resources (icons, splash, layouts)
+│   │   │   └── AndroidManifest.xml
+│   │   └── build.gradle        # App-level Gradle config
+│   ├── build.gradle            # Project-level Gradle config
+│   ├── gradle/                 # Gradle wrapper
+│   └── variables.gradle        # SDK/build tool versions
 ├── src/
 │   ├── main.ts                 # App bootstrap — Vue + Ionic + Router
 │   ├── App.vue                 # Root component
@@ -218,6 +233,7 @@ ionic-midterm_project/
 ├── .env                        # Firebase credentials (NOT in git)
 ├── .env.example                # Template — copy to .env and fill in
 ├── .gitignore                  # Excludes .env, node_modules, dist
+├── capacitor.config.ts         # Capacitor config (appId, appName, webDir)
 ├── index.html                  # HTML entry point
 ├── ionic.config.json           # Ionic project config
 ├── package.json                # Dependencies and scripts
@@ -285,6 +301,66 @@ The Realtime Database uses the following rules:
 
 ---
 
+## Building the Android APK
+
+The project uses **Capacitor** to wrap the web app into a native Android APK, and **GitHub Actions** to build it in the cloud.
+
+### What is Capacitor?
+
+Capacitor is a native bridge that takes your web app (HTML/CSS/JS built by Vite into `dist/`) and packages it inside a native Android WebView. The result is a `.apk` file you can install on any Android phone — the app looks and feels like a native app but runs your Ionic/Vue code inside.
+
+### How the APK Build Works (Step by Step)
+
+The GitHub Actions workflow (`.github/workflows/build-apk.yml`) runs these steps automatically in the cloud:
+
+```
+1. Checkout           → Downloads your code from GitHub
+2. Setup Node.js 22   → Installs Node.js to run npm commands
+3. npm ci             → Installs all dependencies (Ionic, Vue, Firebase, etc.)
+4. npm run build      → Vite compiles Vue/TypeScript into static HTML/CSS/JS in dist/
+5. Setup Java 21      → Installs Java (required by Android's Gradle build system)
+6. npx cap sync       → Copies dist/ into android/app/src/main/assets/public/
+                         so the Android app can load the web files
+7. gradlew assembleDebug → Gradle compiles the Android project into an APK
+8. Upload artifact    → Saves the APK as a downloadable file on GitHub
+```
+
+### How to Get the APK
+
+1. Go to your repo: https://github.com/vnino2003/ionic_midterm_proj
+2. Click the **"Actions"** tab
+3. Click **"Build Notes Organizer APK"** on the left sidebar
+4. Click the **"Run workflow"** dropdown button (top right)
+5. Click the green **"Run workflow"** button
+6. Wait for the build to finish (takes ~3-5 minutes, green checkmark when done)
+7. Click on the completed workflow run
+8. Scroll down to **"Artifacts"** section
+9. Click **"NotesOrganizer-APK"** to download the `.zip` file
+10. Extract the `.zip` → you get `NotesOrganizer.apk`
+11. Transfer the APK to your phone and install it
+
+**Note:** The workflow is set to **manual trigger only** (`workflow_dispatch`). It does NOT run automatically on push — you have to click "Run workflow" each time you want a new APK.
+
+### Why Manual Trigger?
+
+The workflow uses `workflow_dispatch` instead of `on: push` so you control exactly when to build. This saves GitHub Actions minutes and lets you push code changes without triggering a build every time. When you're ready for a new APK, you manually trigger it from the Actions tab.
+
+### Capacitor Config (`capacitor.config.ts`)
+
+```typescript
+const config: CapacitorConfig = {
+  appId: 'com.example.notesorganizer',   // Unique Android package name
+  appName: 'Notes Organizer',             // App name shown on the phone
+  webDir: 'dist'                          // Folder where Vite outputs the build
+};
+```
+
+- **appId** — The unique identifier for the Android app (like a package name in Java). Must be in reverse-domain format.
+- **appName** — The name that appears under the app icon on your phone.
+- **webDir** — Tells Capacitor where to find the built web files. Vite outputs to `dist/` when you run `npm run build`.
+
+---
+
 ## Commands
 
 | Command | What it does |
@@ -293,3 +369,4 @@ The Realtime Database uses the following rules:
 | `npm run dev` | Start dev server (http://localhost:5173) |
 | `npm run build` | Build for production into `dist/` |
 | `npm run preview` | Preview the production build locally |
+| `npx cap sync android` | Copy web build into Android project |
