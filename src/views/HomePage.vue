@@ -2,9 +2,7 @@
   <IonPage>
     <IonHeader class="ion-no-border">
       <IonToolbar>
-        <IonTitle class="header-title">
-          <span class="header-icon">&#x1F4DD;</span> My Notes
-        </IonTitle>
+        <IonTitle class="header-title">Notes</IonTitle>
         <IonButtons slot="end">
           <IonButton
             v-if="filterStatus !== 'all'"
@@ -12,7 +10,7 @@
             @click="filterStatus = 'all'"
             class="clear-filter-btn"
           >
-            Show All
+            Clear
           </IonButton>
         </IonButtons>
       </IonToolbar>
@@ -27,17 +25,17 @@
           :class="{ active: filterStatus === 'all' }"
           @click="filterStatus = 'all'"
         >
-          All ({{ notes.length }})
+          All {{ notes.length > 0 ? `(${notes.length})` : '' }}
         </div>
         <div
-          class="chip important"
+          class="chip"
           :class="{ active: filterStatus === 'Important' }"
           @click="filterStatus = 'Important'"
         >
-          &#x2B50; Important
+          Important
         </div>
         <div
-          class="chip normal"
+          class="chip"
           :class="{ active: filterStatus === 'Normal' }"
           @click="filterStatus = 'Normal'"
         >
@@ -48,9 +46,9 @@
       <!-- Notes List -->
       <div class="notes-container">
         <div v-if="filteredNotes.length === 0" class="empty-state">
-          <div class="empty-icon">&#x1F4CB;</div>
+          <IonIcon :icon="documentTextOutline" class="empty-icon" />
           <h2>{{ notes.length === 0 ? 'No notes yet' : 'No matching notes' }}</h2>
-          <p>{{ notes.length === 0 ? 'Tap + to create your first note' : 'Try a different filter' }}</p>
+          <p>{{ notes.length === 0 ? 'Tap the button below to get started' : 'Try a different filter' }}</p>
         </div>
 
         <div
@@ -60,23 +58,23 @@
           :class="getCategoryClass(note.category)"
         >
           <div class="note-header">
-            <span v-if="note.status === 'Important'" class="status-badge important">&#x2B50; Important</span>
-            <span v-else class="status-badge normal">Normal</span>
+            <span class="status-badge" :class="note.status === 'Important' ? 'important' : 'normal'">
+              {{ note.status }}
+            </span>
             <span class="note-category">{{ note.category }}</span>
+            <div class="note-actions">
+              <IonButton fill="clear" size="small" @click="startEdit(note)" class="action-btn edit">
+                <IonIcon :icon="createOutline" slot="icon-only" />
+              </IonButton>
+              <IonButton fill="clear" size="small" @click="deleteNote(note.key)" class="action-btn delete">
+                <IonIcon :icon="trashOutline" slot="icon-only" />
+              </IonButton>
+            </div>
           </div>
 
           <h3 class="note-title">{{ note.title }}</h3>
           <p class="note-content">{{ note.content }}</p>
           <div class="note-date">{{ formatDate(note.dateCreated) }}</div>
-
-          <div class="note-actions">
-            <IonButton fill="clear" size="small" @click="startEdit(note)" class="action-btn edit">
-              <IonIcon :icon="createOutline" slot="icon-only" />
-            </IonButton>
-            <IonButton fill="clear" size="small" @click="deleteNote(note.key)" class="action-btn delete">
-              <IonIcon :icon="trashOutline" slot="icon-only" />
-            </IonButton>
-          </div>
         </div>
       </div>
 
@@ -105,7 +103,7 @@
             <label class="form-label">Title</label>
             <IonInput
               v-model="form.title"
-              placeholder="What's this note about?"
+              placeholder="Enter note title"
               class="form-input"
               fill="outline"
             />
@@ -127,16 +125,16 @@
             <label class="form-label">Category</label>
             <IonSelect
               v-model="form.category"
-              placeholder="Pick a category"
+              placeholder="Select category"
               interface="action-sheet"
               class="form-input"
               fill="outline"
             >
-              <IonSelectOption value="Personal">&#x1F3E0; Personal</IonSelectOption>
-              <IonSelectOption value="School">&#x1F4DA; School</IonSelectOption>
-              <IonSelectOption value="Work">&#x1F4BC; Work</IonSelectOption>
-              <IonSelectOption value="Ideas">&#x1F4A1; Ideas</IonSelectOption>
-              <IonSelectOption value="Other">&#x1F4CC; Other</IonSelectOption>
+              <IonSelectOption value="Personal">Personal</IonSelectOption>
+              <IonSelectOption value="School">School</IonSelectOption>
+              <IonSelectOption value="Work">Work</IonSelectOption>
+              <IonSelectOption value="Ideas">Ideas</IonSelectOption>
+              <IonSelectOption value="Other">Other</IonSelectOption>
             </IonSelect>
           </div>
 
@@ -155,7 +153,7 @@
                 :class="{ active: form.status === 'Important' }"
                 @click="form.status = 'Important'"
               >
-                &#x2B50; Important
+                Important
               </div>
             </div>
           </div>
@@ -206,7 +204,13 @@ import {
   IonSelectOption,
   IonToast
 } from '@ionic/vue'
-import { addOutline, createOutline, trashOutline, closeOutline } from 'ionicons/icons'
+import {
+  addOutline,
+  createOutline,
+  trashOutline,
+  closeOutline,
+  documentTextOutline
+} from 'ionicons/icons'
 
 import { database } from '@/firebase'
 import { ref as dbRef, push, set, remove, onValue } from 'firebase/database'
@@ -307,7 +311,7 @@ async function addNote() {
       dateCreated: new Date().toISOString(),
       status: form.value.status
     })
-    showToast('Note saved!')
+    showToast('Note saved')
     closeModal()
   } catch {
     showToast('Failed to save note', 'danger')
@@ -337,7 +341,7 @@ async function updateNote() {
       dateCreated: original?.dateCreated || new Date().toISOString(),
       status: form.value.status
     })
-    showToast('Note updated!')
+    showToast('Note updated')
     closeModal()
   } catch {
     showToast('Failed to update note', 'danger')
@@ -362,69 +366,42 @@ onMounted(() => {
 
 <style scoped>
 ion-content {
-  --background: #faf7ff;
+  --background: #f8f9fc;
 }
 
 /* Header */
 .header-title {
-  font-weight: 800;
-  font-size: 1.4rem;
-  color: #4a3580;
-  letter-spacing: -0.5px;
-}
-
-.header-icon {
-  font-size: 1.2rem;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: #1a1a2e;
 }
 
 .clear-filter-btn {
-  font-size: 0.8rem;
-  --color: #7c5cbf;
+  font-size: 0.82rem;
+  --color: #6c63ff;
+  font-weight: 600;
 }
 
 /* Filter Bar */
 .filter-bar {
   display: flex;
   gap: 8px;
-  padding: 12px 16px 4px;
-  overflow-x: auto;
+  padding: 14px 16px 6px;
 }
 
 .chip {
-  padding: 6px 14px;
+  padding: 7px 16px;
   border-radius: 20px;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 600;
-  white-space: nowrap;
   cursor: pointer;
-  background: #f0ecf7;
-  color: #7c5cbf;
+  background: #eeedf5;
+  color: #6b6b8d;
   transition: all 0.2s;
-  border: 2px solid transparent;
 }
 
 .chip.active {
-  background: #7c5cbf;
-  color: white;
-}
-
-.chip.important {
-  background: #fff5e6;
-  color: #cc8800;
-}
-
-.chip.important.active {
-  background: #f5a623;
-  color: white;
-}
-
-.chip.normal {
-  background: #e8f5e9;
-  color: #4caf50;
-}
-
-.chip.normal.active {
-  background: #66bb6a;
+  background: #6c63ff;
   color: white;
 }
 
@@ -436,48 +413,43 @@ ion-content {
 /* Empty State */
 .empty-state {
   text-align: center;
-  padding: 60px 24px;
+  padding: 70px 24px;
 }
 
 .empty-icon {
-  font-size: 56px;
-  margin-bottom: 12px;
+  font-size: 52px;
+  color: #ccc8e0;
+  margin-bottom: 14px;
 }
 
 .empty-state h2 {
   margin: 0 0 6px;
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 700;
-  color: #4a3580;
+  color: #3a3a5c;
 }
 
 .empty-state p {
   margin: 0;
-  font-size: 0.9rem;
-  color: #a89cc8;
+  font-size: 0.88rem;
+  color: #9e9bb5;
 }
 
 /* Note Card */
 .note-card {
   background: white;
-  border-radius: 16px;
-  padding: 16px;
-  margin-bottom: 12px;
-  border-left: 4px solid #e0d6f2;
-  box-shadow: 0 2px 8px rgba(124, 92, 191, 0.08);
-  position: relative;
-  transition: transform 0.15s;
+  border-radius: 14px;
+  padding: 16px 16px 14px;
+  margin-bottom: 10px;
+  border-left: 4px solid #ddd8ee;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
-.note-card:active {
-  transform: scale(0.98);
-}
-
-.note-card.cat-personal { border-left-color: #f4a8c8; }
-.note-card.cat-school { border-left-color: #7c5cbf; }
-.note-card.cat-work { border-left-color: #64b5f6; }
-.note-card.cat-ideas { border-left-color: #ffd97d; }
-.note-card.cat-other { border-left-color: #a8d8ea; }
+.note-card.cat-personal { border-left-color: #e8a0bf; }
+.note-card.cat-school { border-left-color: #6c63ff; }
+.note-card.cat-work { border-left-color: #4da6e8; }
+.note-card.cat-ideas { border-left-color: #e8c84d; }
+.note-card.cat-other { border-left-color: #8bc9b9; }
 
 .note-header {
   display: flex;
@@ -487,42 +459,57 @@ ion-content {
 }
 
 .status-badge {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 10px;
+  padding: 3px 8px;
+  border-radius: 6px;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.4px;
 }
 
 .status-badge.important {
-  background: #fff5e6;
-  color: #cc8800;
+  background: #fff0e6;
+  color: #d47a2e;
 }
 
 .status-badge.normal {
-  background: #e8f5e9;
-  color: #66bb6a;
+  background: #eaf5ee;
+  color: #4a9c6e;
 }
 
 .note-category {
   font-size: 0.75rem;
-  color: #a89cc8;
-  font-weight: 600;
+  color: #9e9bb5;
+  font-weight: 500;
 }
 
+.note-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 0;
+}
+
+.action-btn {
+  --padding-start: 6px;
+  --padding-end: 6px;
+  font-size: 1rem;
+}
+
+.action-btn.edit { --color: #6c63ff; }
+.action-btn.delete { --color: #e07575; }
+
 .note-title {
-  margin: 0 0 6px;
-  font-size: 1.05rem;
+  margin: 0 0 4px;
+  font-size: 1rem;
   font-weight: 700;
-  color: #2d2047;
+  color: #1a1a2e;
 }
 
 .note-content {
-  margin: 0 0 8px;
-  font-size: 0.88rem;
-  color: #6b5e82;
-  line-height: 1.5;
+  margin: 0 0 10px;
+  font-size: 0.85rem;
+  color: #5d5b76;
+  line-height: 1.55;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -531,52 +518,30 @@ ion-content {
 
 .note-date {
   font-size: 0.72rem;
-  color: #c4bbd6;
+  color: #bbb5cf;
   font-weight: 500;
-}
-
-.note-actions {
-  position: absolute;
-  top: 12px;
-  right: 8px;
-  display: flex;
-  gap: 0;
-}
-
-.action-btn {
-  --padding-start: 6px;
-  --padding-end: 6px;
-  font-size: 1.1rem;
-}
-
-.action-btn.edit {
-  --color: #7c5cbf;
-}
-
-.action-btn.delete {
-  --color: #f28b82;
 }
 
 /* FAB */
 .add-fab {
-  --background: #7c5cbf;
-  --background-activated: #6d51a8;
-  --box-shadow: 0 4px 16px rgba(124, 92, 191, 0.4);
+  --background: #6c63ff;
+  --background-activated: #5a52e0;
+  --box-shadow: 0 4px 14px rgba(108, 99, 255, 0.35);
 }
 
 /* Modal */
 .modal-title {
   font-weight: 700;
-  color: #4a3580;
+  color: #1a1a2e;
 }
 
 .close-btn {
-  --color: #a89cc8;
-  font-size: 1.3rem;
+  --color: #9e9bb5;
+  font-size: 1.2rem;
 }
 
 .modal-content {
-  --background: #faf7ff;
+  --background: #f8f9fc;
 }
 
 .form-group {
@@ -585,67 +550,67 @@ ion-content {
 
 .form-label {
   display: block;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  color: #4a3580;
+  color: #3a3a5c;
   margin-bottom: 6px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .form-input {
-  --border-radius: 12px;
+  --border-radius: 10px;
   --background: white;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
 }
 
 /* Status Toggle */
 .status-toggle {
   display: flex;
-  gap: 8px;
+  gap: 10px;
 }
 
 .toggle-option {
   flex: 1;
-  padding: 10px;
+  padding: 11px;
   text-align: center;
-  border-radius: 12px;
+  border-radius: 10px;
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  border: 2px solid #e0d6f2;
-  color: #7c5cbf;
+  border: 2px solid #e5e3ef;
+  color: #6b6b8d;
   background: white;
   transition: all 0.2s;
 }
 
 .toggle-option.active {
-  background: #e8f5e9;
-  border-color: #66bb6a;
-  color: #388e3c;
+  background: #eaf5ee;
+  border-color: #4a9c6e;
+  color: #3a7d57;
 }
 
 .toggle-option.important.active {
-  background: #fff5e6;
-  border-color: #f5a623;
-  color: #cc8800;
+  background: #fff0e6;
+  border-color: #d47a2e;
+  color: #b5651a;
 }
 
 /* Save Button */
 .save-btn {
   margin-top: 8px;
-  --border-radius: 14px;
-  --background: #7c5cbf;
-  --background-activated: #6d51a8;
+  --border-radius: 12px;
+  --background: #6c63ff;
+  --background-activated: #5a52e0;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.95rem;
   letter-spacing: 0.3px;
   height: 48px;
-  --box-shadow: 0 4px 12px rgba(124, 92, 191, 0.3);
+  --box-shadow: 0 4px 12px rgba(108, 99, 255, 0.25);
 }
 
 .save-btn[disabled] {
-  --background: #d6cce8;
+  --background: #d1cfe8;
   --box-shadow: none;
 }
 </style>
